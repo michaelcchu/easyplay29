@@ -213,35 +213,33 @@ function start() {
     });
 }
 
-// Add Chorale options
+// Add music options
 let optgroup = document.createElement("optgroup");
-optgroup.label = "Chorales";
-for (let i = 1; i <= 371; i++) {
-    const option = document.createElement("option");
-    option.text = i; optgroup.append(option);
-}
-library.add(optgroup);
+optgroup.label = "j-s-bach-midi-file-library";
 
-library.addEventListener("change", loadMusic);
-loadMusic();
+// Retrieve text file
+fetch("https://michaelcchu.github.io/j-s-bach-midi-file-library/dir.txt")
+.then( response => response.text())
+.then( data => {
+  const lines = data.split("\n");
+  for (let line of lines) {
+    if (line) {
+      const option = document.createElement("option");
+      option.text = line; optgroup.append(option);  
+    }
+  }
+
+  library.add(optgroup);
+
+  library.addEventListener("change", loadMusic);
+  loadMusic();
+})
+.catch( e => {console.log( e );} );
 
 function loadMusic() {
   const option = library.options[library.selectedIndex];
-  let number = option.text;
-  let optgroup = option.parentElement.label;
-
-  let url;
-
-  if (optgroup === "Chorales") {
-      //url = "https://proxy.cors.sh/"
-      // + "https://www.tobis-notenarchiv.de/bach/07-Choraele/02-Vierstimmig/"
-      // + "BWV_0" + number + ".mid"
-      number = ("00" + number).slice(-3);
-      url = "https://kern.humdrum.org/cgi-bin/ksdata?file=chor"
-      + number + ".krn&l=users/craig/classical/bach/371chorales&format=midi";
-  }
-
-  fetch(url)
+  fetch("https://michaelcchu.github.io/j-s-bach-midi-file-library/midi/" 
+  + option.text)
   .then( response => response.arrayBuffer())
   .then( data => {setup(data);})
   .catch( e => {console.log( e );} );
