@@ -9,7 +9,39 @@ const reader = new FileReader();
 let activePress; let chords = []; let index; let midi; let notes; 
 let on = false; let press; let ticks = []; let tuning;
 
+let notesPlaying = [];
+
 let noteWidth; let minDistance;
+
+// stops all notes that finished before or at the index i chord
+function stopNotes(i) {
+  let time;
+  if (i < chords.length) {
+    const chord = chords[i];
+    time = chord[0].ticks;
+  } else {
+    time = Infinity;
+  }
+  const updatedNotesPlaying = [];  
+  for (let note of notesPlaying) {
+    if (note.ticks + note.durationTicks <= time) {
+        let stop = true;
+        for (let otherNote of notesPlaying) {
+          if ((note.midi === otherNote.midi) &&
+          (otherNote.ticks + otherNote.durationTicks > time)) {
+            stop = false;
+          }
+        }
+        if (stop) {
+          gainNodes[note.midi].gain.setTargetAtTime(0,
+            audioContext.currentTime, 0.015);      
+        }
+    } else {
+      updatedNotesPlaying.push(note);
+    }
+  }
+  notesPlaying = updatedNotesPlaying;
+}
 
 const myGameArea = {
   canvas: document.getElementById("canvas"),
@@ -97,11 +129,12 @@ startGame();
 
 function byId(id) {return document.getElementById(id);};
 
-function setChord(i, gain) {
+function startChord(i) {
   const chord = chords[i];
   for (let note of chord) {
-    gainNodes[note.midi].gain.setTargetAtTime(gain,
+    gainNodes[note.midi].gain.setTargetAtTime(normalGain,
       audioContext.currentTime, 0.015);
+    notesPlaying.push(note);
   }  
 }
 
@@ -129,10 +162,8 @@ function key(e) {
         "Play","Tab"];
     if (on && !badKeys.some(badKey => strPress.includes(badKey)) && !e.repeat
       && (index < chords.length) && (press !== activePress)) {
-        if (index > 0) {
-          setChord(index-1, 0); // turn the old oscillators off
-        }
-        setChord(index, normalGain); // turn the new oscillators on
+        stopNotes(index); // turn the old oscillators off
+        startChord(index, normalGain); // turn the new oscillators on
         updateGameArea();
         activePress = press; index++;
     }
@@ -140,8 +171,8 @@ function key(e) {
 
   function up() {
     if (on && (press === activePress)) {
-        setChord(index-1, 0); // turn the old oscillators off
-        activePress = null;
+      stopNotes(index); // turn the old oscillators off
+      activePress = null;
     }
   }
 
