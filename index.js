@@ -182,7 +182,7 @@ function key(e) {
 }
 
 function resetVars() {
-    activePress = null; index = 0; updateGameArea();
+    activePress = null; index = 0; updateGameArea(); notesPlaying = [];
     for (let gainNode of gainNodes) {gainNode.gain.value = 0;}
 }
 
