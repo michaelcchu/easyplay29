@@ -218,8 +218,7 @@ let optgroup = document.createElement("optgroup");
 optgroup.label = "j-s-bach-midi-file-library";
 
 // Retrieve text file
-fetch("https://raw.githubusercontent.com/michaelcchu/"
-  + "j-s-bach-midi-file-library/main/dir.txt")
+fetch("https://michaelcchu.github.io/j-s-bach-midi-file-library/dir.txt")
 .then( response => response.text())
 .then( data => {
   const lines = data.split("\n");
