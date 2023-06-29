@@ -238,7 +238,7 @@ fetch("https://michaelcchu.github.io/j-s-bach-midi-file-library/dir.txt")
 
 function loadMusic() {
   const option = library.options[library.selectedIndex];
-  fetch("https://michaelcchu.github.io/j-s-bach-midi-file-library/midi/" 
+  fetch("https://michaelcchu.github.io/j-s-bach-midi-file-library/files/" 
   + option.text)
   .then( response => response.arrayBuffer())
   .then( data => {setup(data);})
